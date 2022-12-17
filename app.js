@@ -60,7 +60,7 @@ app.post('/disbursement', async (req, res) => {
 app.post('/disbursement_callback_url', async (req, res) => {
 	try {
 		console.log('DISBURSEMENT_CALLBACK_URL', req)
-	    // res.send('DISBURSEMENT SUCCESS')
+	    res.send('CALLBACK SUCCESS')
 	} catch (error) {
 		console.log('ERROR DISBURSEMENT', error)
 	}
