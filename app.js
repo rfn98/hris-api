@@ -18,11 +18,11 @@ app.use(cors())
 app.use(bodyParser.json())
 // app.use(router)
 
-app.get('/api', (req, res)=>{
+app.get('/', (req, res)=>{
     res.send('<h1>Express & Firestore</h1>')
 })
 
-app.get('/api/balance', async (req, res) => {
+app.get('/balance', async (req, res) => {
 	try {
 		const { Balance } = x
 		const balanceSpecificOptions = {}
@@ -36,7 +36,7 @@ app.get('/api/balance', async (req, res) => {
 	}
 })
 
-app.post('/api/disbursement', async (req, res) => {
+app.post('/disbursement', async (req, res) => {
 	try {
 		const { Disbursement } = x;
 		const disbursementSpecificOptions = {};
@@ -57,7 +57,7 @@ app.post('/api/disbursement', async (req, res) => {
 	}
 })
 
-app.post('/api/disbursement_callback_url', async (req, res) => {
+app.post('/disbursement_callback_url', async (req, res) => {
 	try {
 		console.log('DISBURSEMENT_CALLBACK_URL', req)
 	    // res.send('DISBURSEMENT SUCCESS')
