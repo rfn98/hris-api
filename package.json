@@ -10,7 +10,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@cyclic.sh/dynamodb": "0.0.33",
+    "@faker-js/faker": "^7.6.0",
     "axios": "^1.2.1",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^6.8.3",
+    "runtypes": "^6.6.0",
+    "slugify": "^1.6.5",
+    "uuid": "^9.0.0",
     "xendit-node": "^1.21.10"
   },
   "devDependencies": {
