@@ -1,30 +1,50 @@
-/*import fetch from "node-fetch";
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);*/
-/*var express = require('express')
-var bodyParser = require('body-parser')
-var cors = require('cors')
-var routeSaya = require('./route/route')*/
-
 import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import Xendit from 'xendit-node'
 import mongoose from "mongoose"
+import multer from 'multer'
 const Schema = mongoose.Schema;
 const employeeSchema = new Schema({
-	name: String,
-	age: Number,
+	name: {
+		type: String,
+		required: true
+	},
+	gender: {
+		type: String,
+		required: true
+	},
+	age: {
+		type: Number,
+		required: true
+	},
 	address: String,
-	gender: String
+	photo: Buffer,
+	mimetype: String
 })
 
+const photoSchema = new Schema({
+	image: {
+		type: Buffer,
+		required: true
+	},
+	mimetype: {
+		type: String,
+		required: true
+	}
+})
+
+const upload = multer()
+
 const EmployeeModel = mongoose.model("Employee", employeeSchema)
+const PhotoModel = mongoose.model("Photo", photoSchema)
 const x = new Xendit({ secretKey: 'xnd_development_6SPoK5JlLLQmaV5Pu5oOwyo0Dt9mcIlRpUSxAFwDq6IjlODuT3tEbcby76Nm' })
 
 var app = express()
 app.use(cors())
 app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(upload.any());
 // app.use(router)
 
 app.get('/', (req, res)=>{
@@ -121,11 +141,16 @@ app.get('/employees', async(req, res) => {
 	}
 })
 
+function request (body, file) {
+	return {...body, photo: file.buffer, mimetype: file.mimetype}
+}
+
 app.post("/employee", async (req, res) => {
-  const reqData = req.body;
+  const reqData = req.body
+  const file = req.files[0]
 
   try {
-  	const response = await EmployeeModel.create(reqData)
+  	const response = await EmployeeModel.create(request(reqData, file))
   	res.send(response)
   } catch (e) {
     console.log(`POST /employee/`, e.message);
@@ -134,12 +159,26 @@ app.post("/employee", async (req, res) => {
 });
 
 app.put("/employee/:id", async (req, res) => {
-  const id = req.params.id;
-  const reqData = req.body;
+  const id = req.params.id
+  const reqData = req.body
+  const file = req.files[0]
 
   try {
-  	const response = await EmployeeModel.findByIdAndUpdate(id, reqData)
+  	const response = await EmployeeModel.findByIdAndUpdate(id, request(reqData, file))
   	res.send(response)
+  } catch (e) {
+    console.log(`POST /employee/`, e.message);
+    res.sendStatus(400);
+  }
+})
+
+app.get("/photo/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+  	const response = await EmployeeModel.findById(id)
+  	res.contentType(response.mimetype)
+    res.send(response.photo)
   } catch (e) {
     console.log(`POST /employee/`, e.message);
     res.sendStatus(400);
@@ -158,6 +197,21 @@ app.delete("/employee/:id", async (req, res) => {
   }
 });
 
+app.post("/image", async (req, res) => {
+  try {
+    if (req.files == undefined) {
+      return res.status(400).send({ message: "Please upload a file!" });
+    }
+    const response = await PhotoModel.create({image: req.files[0].buffer, mimetype: req.files[0].mimetype})
+
+    res.status(200).send(response);
+  } catch (err) {
+    console.log('req.file error', req.files[0])
+    res.status(500).send({
+      message: `Could not upload the file: ${req.files[0].originalname}. ${err}`,
+    });
+  }
+});
 
 //configure mongoose
 mongoose.set('strictQuery', false)
